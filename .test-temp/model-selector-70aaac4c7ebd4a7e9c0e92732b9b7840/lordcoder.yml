@@ -1,0 +1,3 @@
+model: ollama/original
+system-prompt: |
+  test

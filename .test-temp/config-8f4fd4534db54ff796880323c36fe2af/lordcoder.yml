@@ -1,0 +1,4 @@
+model: ollama/qwen2.5-coder:14b
+system-prompt: |
+  hello
+test-cmd: python -m pytest -q

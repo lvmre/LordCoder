@@ -5,15 +5,14 @@ This test suite covers the core functionality of the utils module,
 including error handling and edge cases.
 """
 
-import os
 import platform
 import shutil
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from pathlib import Path
 from uuid import uuid4
 
-from src.lordcoder.utils import (
+from lordcoder.utils import (
     SystemMonitor,
     DiskUsage,
     MemoryInfo,
@@ -95,7 +94,7 @@ class TestSystemMonitor(unittest.TestCase):
             self.assertIn(key, info)
             self.assertIsInstance(info[key], str)
     
-    @patch('src.lordcoder.utils.PSUTIL_AVAILABLE', False)
+    @patch('lordcoder.utils.PSUTIL_AVAILABLE', False)
     def test_memory_info_without_psutil(self) -> None:
         """Test that memory info raises RuntimeError without psutil."""
         monitor = SystemMonitor()
@@ -103,7 +102,7 @@ class TestSystemMonitor(unittest.TestCase):
             monitor.get_memory_info()
         self.assertIn("psutil is required", str(cm.exception))
     
-    @patch('src.lordcoder.utils.PSUTIL_AVAILABLE', False)
+    @patch('lordcoder.utils.PSUTIL_AVAILABLE', False)
     def test_cpu_percent_without_psutil(self) -> None:
         """Test that CPU percent raises RuntimeError without psutil."""
         monitor = SystemMonitor()
@@ -121,7 +120,7 @@ class TestConvenienceFunctions(unittest.TestCase):
         self.assertIsInstance(result, DiskUsage)
         self.assertGreater(result.total, 0)
     
-    @patch('src.lordcoder.utils.PSUTIL_AVAILABLE', False)
+    @patch('lordcoder.utils.PSUTIL_AVAILABLE', False)
     def test_get_memory_info_function_without_psutil(self) -> None:
         """Test get_memory_info function without psutil."""
         with self.assertRaises(RuntimeError):
@@ -210,7 +209,7 @@ class TestIntegration(unittest.TestCase):
     def test_main_function_execution(self) -> None:
         """Test that main function runs without errors."""
         # Import main function and test it doesn't crash
-        from src.lordcoder.utils import main
+        from lordcoder.utils import main
         
         # This should not raise any exceptions
         try:
@@ -220,8 +219,8 @@ class TestIntegration(unittest.TestCase):
     
     def test_module_import(self) -> None:
         """Test that module imports work correctly."""
-        from src.lordcoder import utils
-        from src.lordcoder.utils import SystemMonitor, get_disk_usage, get_memory_info
+        from lordcoder import utils
+        from lordcoder.utils import SystemMonitor, get_disk_usage, get_memory_info
         
         # Test that all expected items are available
         self.assertTrue(hasattr(utils, 'SystemMonitor'))

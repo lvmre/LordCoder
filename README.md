@@ -1,6 +1,23 @@
 ﻿# LordCoder
 
-LordCoder is a local AI coding assistant built around Aider. It gives you reusable Windows launchers, a checked-in base config, and a persisted model selector so you can switch between local and hosted LLMs without editing the repo config by hand.
+LordCoder is now a native, cross-platform, local-first coding core. Phase 1 provides an installable Python package, a real `lordcoder` CLI, a localhost REST API, policy-gated file writes and shell execution, and a compatibility layer for the older `lordcoder.yml` / `.lordcoder-model` workflow.
+
+Primary phase-1 commands:
+
+- `lordcoder init`
+- `lordcoder doctor`
+- `lordcoder daemon`
+- `lordcoder plan`
+- `lordcoder apply`
+- `lordcoder test`
+- `lordcoder version`
+
+Primary API routes:
+
+- `GET /healthz`
+- `POST /v1/plan`
+- `POST /v1/apply`
+- `POST /v1/test`
 
 ## Features
 
@@ -24,46 +41,40 @@ LordCoder is a local AI coding assistant built around Aider. It gives you reusab
 Recommended:
 
 ```bash
-install.bat
+pip install .
 ```
 
-Manual with `uv`:
+Initialize a project config:
 
 ```bash
-pip install uv
-python -m uv tool install --force --python python3.12 aider-chat
+lordcoder init
 ```
 
-Traditional virtual environment:
+Run diagnostics:
 
 ```bash
-python -m venv .venv
-.venv\Scripts\activate
-pip install --upgrade pip
-pip install aider-chat==0.13.0 psutil pytest pytest-cov
+lordcoder doctor
+lordcoder doctor --json
+lordcoder doctor --recommend-model
 ```
 
-If you want local Ollama models, install Ollama from <https://ollama.com>. LordCoder will offer to pull the selected Ollama model when you launch it.
+Start the daemon:
+
+```bash
+lordcoder daemon
+```
+
+If you want local Ollama models, install Ollama from <https://ollama.com>. `lordcoder doctor` will tell you whether the runtime is reachable and which model size is a safer fit for the current machine.
 
 ### Launch
 
-Recommended launcher:
+Primary product entrypoint:
 
 ```bash
-start-lordcoder.bat
+lordcoder --version
 ```
 
-Alternate launcher:
-
-```bash
-run-lordcoder.bat
-```
-
-After a model has been selected once, you can also launch Aider directly with the generated runtime config:
-
-```bash
-aider --config lordcoder.effective.yml
-```
+Legacy Windows launchers are still present in the repo as compatibility helpers, but they are no longer the main runtime path.
 
 ## Model Selection
 

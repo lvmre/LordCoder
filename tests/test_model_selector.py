@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 from uuid import uuid4
 
-from src.lordcoder.model_selector import (
+from lordcoder.model_selector import (
     ModelSelection,
     choose_model,
     detect_provider,
