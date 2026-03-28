@@ -34,7 +34,7 @@ echo Model: qwen2.5-coder:14b
 echo Configuration: lordcoder.yml
 echo.
 
-python3.12 -m aider --config lordcoder.yml --no-repo-map
+python3.12 -m aider --config lordcoder.yml
 
 if errorlevel 1 (
     echo.
