@@ -7,9 +7,11 @@ including error handling and edge cases.
 
 import os
 import platform
-import tempfile
+import shutil
 import unittest
 from unittest.mock import patch, MagicMock
+from pathlib import Path
+from uuid import uuid4
 
 from src.lordcoder.utils import (
     SystemMonitor,
@@ -19,6 +21,13 @@ from src.lordcoder.utils import (
     get_memory_info,
     format_bytes,
 )
+
+
+def make_workspace_temp_dir() -> Path:
+    """Create a temp directory inside the workspace to avoid system temp restrictions."""
+    root = Path(".test-temp") / f"utils-{uuid4().hex}"
+    root.mkdir(parents=True, exist_ok=False)
+    return root
 
 
 class TestSystemMonitor(unittest.TestCase):
@@ -53,10 +62,13 @@ class TestSystemMonitor(unittest.TestCase):
     
     def test_get_disk_usage_temp_dir(self) -> None:
         """Test getting disk usage for temporary directory."""
-        with tempfile.TemporaryDirectory() as temp_dir:
-            result = self.monitor.get_disk_usage(temp_dir)
+        temp_dir = make_workspace_temp_dir()
+        try:
+            result = self.monitor.get_disk_usage(str(temp_dir))
             self.assertIsInstance(result, DiskUsage)
-            self.assertEqual(result.path, temp_dir)
+            self.assertEqual(result.path, str(temp_dir))
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
     
     def test_format_bytes(self) -> None:
         """Test byte formatting function."""

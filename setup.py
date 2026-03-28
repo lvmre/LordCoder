@@ -53,6 +53,7 @@ setup(
     entry_points={
         "console_scripts": [
             "lordcoder=src.lordcoder.utils:main",
+            "lordcoder-model=src.lordcoder.model_selector:main",
         ],
     },
     include_package_data=True,
