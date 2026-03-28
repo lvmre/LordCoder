@@ -28,6 +28,8 @@ wheels/
 
 # Testing
 .pytest_cache/
+.test-temp/
+.tmp-selector-test/
 .coverage
 htmlcov/
 .tox/

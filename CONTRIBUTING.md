@@ -21,8 +21,8 @@ Thank you for your interest in contributing to LordCoder! This document provides
 
 2. **Set up development environment**
    ```bash
-   # Run the setup script
-   install.bat
+   # Legacy Windows helper
+   legacy\windows\install.bat
    
    # Or set up manually
    python -m venv .venv

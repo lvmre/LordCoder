@@ -74,7 +74,7 @@ Primary product entrypoint:
 lordcoder --version
 ```
 
-Legacy Windows launchers are still present in the repo as compatibility helpers, but they are no longer the main runtime path.
+Legacy Windows launchers are still present in [`legacy/windows`](legacy/windows) as compatibility helpers, but they are no longer the main runtime path.
 
 ## Runtime And Model Guidance
 
@@ -89,7 +89,9 @@ The current phase implements `ollama` as the only working runtime provider. `lor
 - `.lordcoder-model`: legacy migration input only
 - `src/lordcoder/model_selector.py`: compatibility helper for the old workflow
 - `.github/workflows/`: CI and release scaffolding
+- `docs/`: secondary guides and troubleshooting references
 - `deploy/`: service-install templates
+- `legacy/windows/`: deprecated Windows batch helpers
 
 ## Roadmap
 
@@ -104,4 +106,4 @@ The current phase implements `ollama` as the only working runtime provider. `lor
 - Use `lordcoder apply --allow-write` for policy-gated file writes
 - The old batch launchers remain as deprecated compatibility helpers, not the primary runtime path
 
-See [TROUBLESHOOTING_NATIVE.md](TROUBLESHOOTING_NATIVE.md) for the native workflow and [PERFORMANCE.md](PERFORMANCE.md) for model sizing guidance.
+See [docs/TROUBLESHOOTING_NATIVE.md](docs/TROUBLESHOOTING_NATIVE.md) for the native workflow and [docs/PERFORMANCE.md](docs/PERFORMANCE.md) for model sizing guidance.
