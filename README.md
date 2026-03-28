@@ -21,19 +21,19 @@ Primary API routes:
 
 ## Features
 
-- Multi-file coding assistance through Aider
-- Persisted model selection on first launch
-- Support for any Aider-compatible model string
-- Ollama-aware startup checks only when using `ollama/...` models
-- Auto-commit, git, and pytest settings baked into the base config
+- Cross-platform dev install via `pip install .`
+- Native `lordcoder.toml` config
+- Stable CLI and localhost API
+- Ollama runtime hardening with `/api` endpoint normalization
+- Machine-readable `doctor --json` diagnostics
+- Compatibility migration for `lordcoder.yml` and `.lordcoder-model`
 
 ## Quick Start
 
 ### Prerequisites
 
 - Python 3.8+
-- Windows 10/11
-- Ollama only if you plan to use an `ollama/...` model
+- Ollama if you plan to use the default local runtime
 - Enough RAM for the model you choose
 
 ### Install
@@ -76,29 +76,32 @@ lordcoder --version
 
 Legacy Windows launchers are still present in the repo as compatibility helpers, but they are no longer the main runtime path.
 
-## Model Selection
+## Runtime And Model Guidance
 
-On first launch, LordCoder prompts you to select a model. The current built-in presets are:
+The current phase implements `ollama` as the only working runtime provider. `lordcoder doctor` recommends a `qwen2.5-coder` tier based on RAM and architecture, warns if the configured model is too heavy, and prints a recommended `ollama pull ...` command instead of auto-installing models.
 
-- `ollama/qwen2.5-coder:7b`
-- `ollama/qwen2.5-coder:14b`
-- `ollama/qwen2.5-coder:32b`
-
-You can also enter any custom Aider-compatible model string, such as `openai/gpt-5` or `anthropic/claude-3-7-sonnet`.
-
-LordCoder saves your choice in `.lordcoder-model` and generates `lordcoder.effective.yml` from the checked-in `lordcoder.yml`.
+`llama_cpp` is recognized as a planned provider, but it is not implemented in this phase.
 
 ## Project Files
 
-- `lordcoder.yml`: base config committed to the repo
-- `lordcoder.effective.yml`: generated runtime config with the selected model injected
-- `.lordcoder-model`: saved selected model
-- `src/lordcoder/model_selector.py`: model selection and config rendering logic
+- `lordcoder.toml`: native runtime/config source
+- `lordcoder.yml`: legacy migration input only
+- `.lordcoder-model`: legacy migration input only
+- `src/lordcoder/model_selector.py`: compatibility helper for the old workflow
+- `.github/workflows/`: CI and release scaffolding
+- `deploy/`: service-install templates
+
+## Roadmap
+
+- Current phase: cross-platform dev install reliability and Ollama hardening
+- Next phase: native packaging, service validation, container build validation, richer doctor checks
+- Later phase: `llama.cpp`, lightweight mode, stronger distribution channels, optional LSP/OpenAPI/SDK expansion
 
 ## Troubleshooting
 
-- If Aider is not found, restart the terminal or use `python -m uv tool run aider --config lordcoder.effective.yml`
-- If an Ollama model is missing, rerun a launcher and let LordCoder pull it for you
-- If your machine struggles, switch to `ollama/qwen2.5-coder:7b`
+- Use `lordcoder doctor --json` for machine-readable diagnostics
+- Use `lordcoder test --allow-shell` for policy-gated test execution
+- Use `lordcoder apply --allow-write` for policy-gated file writes
+- The old batch launchers remain as deprecated compatibility helpers, not the primary runtime path
 
-See [PERFORMANCE.md](PERFORMANCE.md) and [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for more detail.
+See [TROUBLESHOOTING_NATIVE.md](TROUBLESHOOTING_NATIVE.md) for the native workflow and [PERFORMANCE.md](PERFORMANCE.md) for model sizing guidance.

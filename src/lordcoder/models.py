@@ -11,9 +11,38 @@ class RuntimeSettings:
     """Runtime configuration."""
 
     provider: str = "ollama"
-    endpoint: str = "http://127.0.0.1:11434"
+    endpoint: str = "http://127.0.0.1:11434/api"
     model: str = "qwen2.5-coder:7b"
     context_window: int = 8192
+
+
+@dataclass
+class RuntimeCapabilities:
+    """Capabilities advertised by a runtime adapter."""
+
+    streaming: bool = False
+    model_management: bool = False
+    structured_output: bool = False
+    tool_calls: bool = False
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Serialise runtime capabilities."""
+        return asdict(self)
+
+
+@dataclass
+class ModelMetadata:
+    """Lightweight model metadata exposed by runtimes."""
+
+    name: str
+    installed: bool
+    context_window: Optional[int] = None
+    size_bytes: Optional[int] = None
+    family: Optional[str] = None
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Serialise the model metadata."""
+        return asdict(self)
 
 
 @dataclass
@@ -100,6 +129,7 @@ class DoctorReport:
 
     checks: List[DoctorCheck]
     recommendation: str
+    recommended_command: str
     warnings: List[str] = field(default_factory=list)
 
     @property
@@ -116,6 +146,7 @@ class DoctorReport:
         return {
             "status": self.overall_status,
             "recommendation": self.recommendation,
+            "recommended_command": self.recommended_command,
             "warnings": list(self.warnings),
             "checks": [check.to_dict() for check in self.checks],
         }

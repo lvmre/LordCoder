@@ -8,6 +8,7 @@ import urllib.error
 import urllib.request
 from typing import Dict, List
 
+from ...models import ModelMetadata, RuntimeCapabilities
 from .base import RuntimeAdapter
 
 
@@ -17,8 +18,15 @@ class OllamaRuntimeAdapter(RuntimeAdapter):
     provider = "ollama"
 
     def __init__(self, endpoint: str, model: str) -> None:
-        self.endpoint = endpoint.rstrip("/")
+        self.endpoint = self._normalize_endpoint(endpoint)
         self.model = model
+
+    @staticmethod
+    def _normalize_endpoint(endpoint: str) -> str:
+        normalized = endpoint.rstrip("/")
+        if normalized.endswith("/api"):
+            return normalized
+        return f"{normalized}/api"
 
     def _request(self, path: str, payload: Dict[str, object] | None = None) -> Dict[str, object]:
         url = f"{self.endpoint}{path}"
@@ -40,15 +48,51 @@ class OllamaRuntimeAdapter(RuntimeAdapter):
             return False
         return bool(health.get("reachable"))
 
+    def capabilities(self) -> RuntimeCapabilities:
+        return RuntimeCapabilities(
+            streaming=True,
+            model_management=True,
+            structured_output=False,
+            tool_calls=False,
+        )
+
     def health(self) -> Dict[str, object]:
         try:
             models = self.list_models()
-            return {"provider": self.provider, "reachable": True, "models": models}
-        except urllib.error.URLError:
-            return {"provider": self.provider, "reachable": False, "models": []}
+            model_names = set(models)
+            model_present = self.model in model_names
+            return {
+                "provider": self.provider,
+                "endpoint": self.endpoint,
+                "reachable": True,
+                "models": models,
+                "configured_model_installed": model_present,
+                "recommended_command": None if model_present else self.ensure_model_command(self.model),
+                "capabilities": self.capabilities().to_dict(),
+            }
+        except urllib.error.HTTPError as exc:
+            return {
+                "provider": self.provider,
+                "endpoint": self.endpoint,
+                "reachable": False,
+                "models": [],
+                "error": f"HTTP {exc.code}",
+                "recommended_command": self.ensure_model_command(self.model),
+                "capabilities": self.capabilities().to_dict(),
+            }
+        except urllib.error.URLError as exc:
+            return {
+                "provider": self.provider,
+                "endpoint": self.endpoint,
+                "reachable": False,
+                "models": [],
+                "error": str(exc.reason),
+                "recommended_command": self.ensure_model_command(self.model),
+                "capabilities": self.capabilities().to_dict(),
+            }
 
     def list_models(self) -> List[str]:
-        payload = self._request("/api/tags")
+        payload = self._request("/tags")
         models = payload.get("models", [])
         result: List[str] = []
         if isinstance(models, list):
@@ -57,12 +101,36 @@ class OllamaRuntimeAdapter(RuntimeAdapter):
                     result.append(str(item["name"]))
         return result
 
-    def chat(self, messages: List[Dict[str, str]]) -> Dict[str, object]:
-        return self._request(
-            "/api/chat",
+    def model_metadata(self, model: str) -> ModelMetadata:
+        payload = self._request("/tags")
+        models = payload.get("models", [])
+        if isinstance(models, list):
+            for item in models:
+                if isinstance(item, dict) and str(item.get("name")) == model:
+                    return ModelMetadata(
+                        name=model,
+                        installed=True,
+                        size_bytes=int(item["size"]) if isinstance(item.get("size"), int) else None,
+                        family=str(item.get("details", {}).get("family")) if isinstance(item.get("details"), dict) else None,
+                    )
+        return ModelMetadata(name=model, installed=False)
+
+    def ensure_model_command(self, model: str) -> str:
+        return f"ollama pull {model}"
+
+    def chat(self, messages: List[Dict[str, str]], *, stream: bool = False) -> Dict[str, object]:
+        response = self._request(
+            "/chat",
             payload={
                 "model": self.model,
-                "stream": False,
+                "stream": stream,
                 "messages": messages,
             },
         )
+        timings = {}
+        for key in ("total_duration", "load_duration", "prompt_eval_duration", "eval_duration"):
+            if key in response:
+                timings[key] = response[key]
+        if timings:
+            response["timings"] = timings
+        return response

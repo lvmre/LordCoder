@@ -30,6 +30,7 @@ def test_load_config_migrates_legacy_files() -> None:
 
         assert loaded.config.runtime.provider == "ollama"
         assert loaded.config.runtime.model == "qwen2.5-coder:32b"
+        assert loaded.config.runtime.endpoint == "http://127.0.0.1:11434/api"
         assert loaded.config.project.test_command == "python -m pytest -q"
         assert any("system-prompt" in warning for warning in loaded.warnings)
     finally:

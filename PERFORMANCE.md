@@ -1,46 +1,61 @@
 ﻿# LordCoder Performance Guide
 
-This guide helps you choose the right model and keep LordCoder responsive on Windows.
+This guide covers the current native LordCoder workflow and its model-sizing guidance.
 
 ## Recommended Local Models
 
-For a system around an Intel i5-10400 with 24GB RAM:
+LordCoder currently recommends `qwen2.5-coder` tiers based on RAM and architecture:
 
-| Model | RAM Usage | Speed | Best For |
-|---|---:|---|---|
-| `qwen2.5-coder:7b` | ~8GB | Fast | Quick tasks and debugging |
-| `qwen2.5-coder:14b` | ~14GB | Balanced | General coding |
-| `qwen2.5-coder:32b` | ~20GB | Slower | Complex tasks and larger projects |
+| Machine Class | Recommended Model | Notes |
+|---|---|---|
+| Low RAM or `armv7` | `qwen2.5-coder:1.5b` | Safest starting point |
+| Under 16 GB RAM | `qwen2.5-coder:7b` | Good for quick edits and debugging |
+| 16-32 GB RAM | `qwen2.5-coder:14b` | Balanced default for general coding |
+| 32+ GB RAM | `qwen2.5-coder:32b` | Larger-context, slower local work |
 
-## Switching Models
+## How To Check The Recommendation
 
-1. Launch `start-lordcoder.bat`.
-2. Choose to change the saved model.
-3. Pick a preset or enter a custom Aider-compatible model string.
-4. If you selected an `ollama/...` model that is not installed, let LordCoder pull it.
-
-After selection, direct launches can use:
+Run:
 
 ```bash
-aider --config lordcoder.effective.yml
+lordcoder doctor
 ```
+
+Or machine-readable output:
+
+```bash
+lordcoder doctor --json
+```
+
+LordCoder will:
+
+- recommend a model tier
+- warn when the configured model is too heavy
+- show whether the configured Ollama model is installed
+- print a recommended `ollama pull ...` command when it is missing
 
 ## Practical Tips
 
-- Use `qwen2.5-coder:14b` as the default local balance point.
-- Drop to `qwen2.5-coder:7b` if responses are too slow or RAM is tight.
-- Move up to `qwen2.5-coder:32b` only when you need better reasoning and have headroom.
-- Close browsers and other heavy apps before running larger local models.
-- Restart Ollama with `ollama serve` if model loading gets sluggish.
+- Use `qwen2.5-coder:14b` as the balanced default on a typical 16-32 GB dev machine.
+- Drop to `qwen2.5-coder:7b` or `qwen2.5-coder:1.5b` if responses are too slow or RAM is tight.
+- Move up to `qwen2.5-coder:32b` only when you have clear headroom.
+- Close browsers and other heavy apps before loading larger local models.
+- Restart Ollama if model loading gets sluggish.
 
 ## Monitoring
 
-You can inspect system resources with:
+Inspect system resources:
 
 ```bash
 python src/lordcoder/utils.py
 ```
 
-## Hosted Models
+Inspect native diagnostics:
 
-LordCoder also supports hosted providers through custom model strings, for example `openai/...` or `anthropic/...`. In those cases LordCoder skips Ollama checks and leaves credential validation to Aider.
+```bash
+lordcoder doctor --json
+```
+
+## Planned Runtime Expansion
+
+`llama_cpp` is part of the roadmap for lower-RAM and ARM-focused setups, but it is not implemented in the current phase. For now, Ollama is the only supported runtime.

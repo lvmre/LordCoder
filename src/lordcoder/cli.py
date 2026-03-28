@@ -86,6 +86,7 @@ def _load_changes(args: argparse.Namespace) -> List[FileChange]:
 def _format_doctor_text(report: dict) -> None:
     print(f"Doctor status: {report['status']}")
     print(f"Recommended model: {report['recommendation']}")
+    print(f"Recommended command: {report['recommended_command']}")
     for warning in report["warnings"]:
         print(f"Warning: {warning}")
     for check in report["checks"]:

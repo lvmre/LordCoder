@@ -22,6 +22,8 @@ def test_healthz() -> None:
         response = app.handle("GET", "/healthz")
         assert response.status_code == 200
         assert response.payload["status"] == "ok"
+        assert response.payload["runtime"]["provider"] == "ollama"
+        assert response.payload["runtime"]["endpoint"].endswith("/api")
     finally:
         shutil.rmtree(root, ignore_errors=True)
 

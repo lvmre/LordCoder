@@ -1,6 +1,8 @@
 ﻿# LordCoder Troubleshooting Guide
 
-## Installation Issues
+This file documents the older compatibility workflow. For the current native workflow, prefer [TROUBLESHOOTING_NATIVE.md](TROUBLESHOOTING_NATIVE.md).
+
+## Legacy Installation Issues
 
 ### `aider` command not found
 
@@ -23,7 +25,7 @@ pip install uv
 python -m uv tool install --force --python python3.12 aider-chat
 ```
 
-## Model Selection Issues
+## Legacy Model Selection Issues
 
 ### I want to switch models
 
@@ -49,7 +51,7 @@ ollama pull qwen2.5-coder:7b
 
 That is supported. LordCoder skips Ollama checks for non-`ollama/...` models. Any provider credential errors will come from Aider itself.
 
-## Performance Issues
+## Legacy Performance Issues
 
 ### Responses are too slow
 
@@ -63,7 +65,7 @@ That is supported. LordCoder skips Ollama checks for non-`ollama/...` models. An
 - Close browsers and other heavy applications
 - Reboot if Ollama has accumulated memory pressure
 
-## Debugging
+## Legacy Debugging
 
 Check the generated runtime config:
 

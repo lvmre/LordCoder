@@ -41,6 +41,7 @@ def test_init_and_doctor_json() -> None:
         payload = json.loads(stdout)
         assert code == 0
         assert payload["recommendation"]
+        assert payload["recommended_command"].startswith("ollama pull ")
     finally:
         shutil.rmtree(root, ignore_errors=True)
 

@@ -36,7 +36,44 @@ def test_build_doctor_report_includes_config_warnings() -> None:
         )
         report = build_doctor_report(root)
         assert report.recommendation
+        assert report.recommended_command.startswith("ollama pull ")
         assert report.checks
         assert any("system-prompt" in warning for warning in report.warnings)
+    finally:
+        shutil.rmtree(root, ignore_errors=True)
+
+
+def test_build_doctor_report_warns_when_model_is_heavier_than_recommended() -> None:
+    root = make_workspace_temp_dir()
+    try:
+        (root / "lordcoder.toml").write_text(
+            "[runtime]\nprovider = \"ollama\"\nendpoint = \"http://127.0.0.1:11434/api\"\n"
+            "model = \"qwen2.5-coder:32b\"\ncontext_window = 8192\n\n"
+            "[permissions]\nallow_file_write = false\nallow_shell = false\n\n"
+            "[daemon]\nhost = \"127.0.0.1\"\nport = 32123\n\n"
+            "[project]\ninclude = []\nignore = []\ntest_command = \"python -m pytest -q\"\n",
+            encoding="utf-8",
+        )
+        report = build_doctor_report(root)
+        assert any("heavier than the recommended tier" in warning for warning in report.warnings)
+    finally:
+        shutil.rmtree(root, ignore_errors=True)
+
+
+def test_build_doctor_report_handles_planned_runtime() -> None:
+    root = make_workspace_temp_dir()
+    try:
+        (root / "lordcoder.toml").write_text(
+            "[runtime]\nprovider = \"llama_cpp\"\nendpoint = \"http://127.0.0.1:8080/v1\"\n"
+            "model = \"tiny.gguf\"\ncontext_window = 4096\n\n"
+            "[permissions]\nallow_file_write = false\nallow_shell = false\n\n"
+            "[daemon]\nhost = \"127.0.0.1\"\nport = 32123\n\n"
+            "[project]\ninclude = []\nignore = []\ntest_command = \"python -m pytest -q\"\n",
+            encoding="utf-8",
+        )
+        report = build_doctor_report(root)
+        runtime_check = next(check for check in report.checks if check.name == "runtime")
+        assert runtime_check.status == "WARN"
+        assert "planned but not implemented" in runtime_check.message
     finally:
         shutil.rmtree(root, ignore_errors=True)

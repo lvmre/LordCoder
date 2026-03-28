@@ -79,6 +79,8 @@ def load_legacy_config(project_root: Path) -> LegacyConfigMigration:
                 provider, model_name = model.split("/", 1)
                 runtime["provider"] = provider
                 runtime["model"] = model_name
+                if provider == "ollama":
+                    runtime["endpoint"] = "http://127.0.0.1:11434/api"
             else:
                 runtime["model"] = model
 
@@ -113,6 +115,8 @@ def load_legacy_config(project_root: Path) -> LegacyConfigMigration:
                 provider, model_name = saved_model.split("/", 1)
                 runtime["provider"] = provider
                 runtime["model"] = model_name
+                if provider == "ollama":
+                    runtime["endpoint"] = "http://127.0.0.1:11434/api"
             else:
                 runtime["model"] = saved_model
             result.config_overrides["runtime"] = runtime

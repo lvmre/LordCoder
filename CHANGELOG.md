@@ -55,3 +55,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## LordCoder v1.0.0
 
 **Your local AI coding companion for building amazing software, faster and privately.**
+
+## [1.1.0] - 2026-03-28
+
+### Added
+- Native troubleshooting guide for the current `lordcoder` CLI and API workflow
+- CI and release scaffolding documentation aligned with the native architecture
+- Deploy and service template documentation for future packaging phases
+
+### Changed
+- Updated README to reflect the native cross-platform core as the primary product path
+- Updated performance guidance to match `lordcoder doctor` model recommendations
+- Marked the older Aider-first troubleshooting flow as compatibility-only
+- Documented `ollama` as the only implemented runtime and `llama_cpp` as planned

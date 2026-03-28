@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, Dict
 
 from ..config import load_config
+from ..core.runtime import RuntimeNotImplementedError, create_runtime_adapter
 from ..models import ApiResponse, FileChange, PlanResponse
 from .indexer import build_index, select_relevant_files
 from .plugins import PluginManager
@@ -73,13 +74,21 @@ class LocalApiApplication:
         """Route a request to the appropriate handler."""
         payload = payload or {}
         if method == "GET" and path == "/healthz":
+            runtime_payload = {
+                "provider": self.loaded.config.runtime.provider,
+                "model": self.loaded.config.runtime.model,
+                "endpoint": self.loaded.config.runtime.endpoint,
+            }
+            try:
+                runtime_payload["capabilities"] = create_runtime_adapter(self.loaded.config.runtime).capabilities().to_dict()
+            except RuntimeNotImplementedError as exc:
+                runtime_payload["warning"] = str(exc)
             return ApiResponse(
                 status_code=HTTPStatus.OK,
                 payload={
                     "status": "ok",
                     "config_source": self.loaded.source,
-                    "runtime": self.loaded.config.runtime.provider,
-                    "model": self.loaded.config.runtime.model,
+                    "runtime": runtime_payload,
                 },
             )
         if method == "POST" and path == "/v1/plan":
